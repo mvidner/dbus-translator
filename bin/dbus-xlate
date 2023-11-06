@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+
+require "shellwords"
+
+class Message
+  # @return [:signal,:method_call]
+  attr_accessor :type
+
+  # @return [String]
+  attr_accessor :path, :interface, :member, :destination, :signature
+
+  # @return [Array] of what
+  attr_accessor :body
+end
+
+class Command
+  # @return [String,:system,:session]
+  attr_accessor :address
+  # @return [Message]
+  attr_accessor :message
+  # @return [Boolean]
+  attr_accessor :quiet
+
+  def initialize(command = nil)
+    return if command.nil?
+
+    @address = command.address
+    @message = command.message
+    @quiet = command.quiet
+  end
+end
+
+class DBusSend < Command
+  # @param argv [Array<String>] CLI args where the first one is "dbus-send"
+  # @return [Array(address,Message)]
+  def self.parse_argv(argv)
+    # $ dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetId
+    argv = argv.dup
+    cmd_s = argv.shift
+    raise LogicError unless cmd_s == "dbus-send"
+
+    command = new
+    command.address = :session
+
+    command.message = message = Message.new
+    message.type = :signal
+    # what if --dest is omitted?
+    message.destination = nil
+
+    while argv.first.start_with? "--"
+      case argv.first
+      when /--dest=(.*)/
+        message.destination = Regexp.last_match(1)
+      when "--print-reply", "--print-reply=literal"
+        command.quiet = false
+        message.type = :method_call
+      when "--system"
+        command.address = :system
+      when "--session"
+        command.address = :session
+      else
+        warn "Unrecognized option #{argv.first.inspect}"
+      end
+      argv.shift
+    end
+
+    # Parse positional arguments
+    message.path = argv.shift
+    interface_method = argv.shift
+    message.interface, _dot, message.member = interface_method.rpartition "."
+
+    warn "Parameter passing not yet implemented" unless argv.empty?
+
+    command
+  end
+end
+
+class Busctl < Command
+  def to_s
+    addr_s = case address
+             when :system
+               "--system"
+             when :session
+               "--user"
+             else
+               "--address=#{address}"
+             end
+
+    argv = [
+      "busctl",
+      quiet ? "--quiet" : nil,
+      addr_s,
+      message.type == :method_call ? "call" : "emit",
+      message.type == :method_call ? message.destination : nil,
+      message.path,
+      message.interface,
+      message.member
+    ].compact
+
+    argv.shelljoin
+  end
+end
+
+case ARGV.first
+when "dbus-send"
+  command = DBusSend.parse_argv(ARGV)
+
+  puts Busctl.new(command)
+end

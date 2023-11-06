@@ -1,0 +1,6 @@
+
+Metrics/MethodLength:
+  Max: 25
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
