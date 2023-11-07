@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "sinatra"
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
+require "dbus-babel"
+
+NAME = "D-Bus Translator"
+MYURL = "https://github.com/mvidner/dbus-translator"
+def footer
+  "\n<hr />\n" \
+  "<small>Powered by <a href='#{MYURL}'>#{NAME}</a></small>\n"
+end
+
+get "/" do
+  q = params["q"]
+
+  page = "<title>#{NAME}</title>\n"
+  page << "<p><b>#{NAME}</b></p>\n"
+
+  page << "
+  <form action='/' method='get'>
+    <p>Translate D-Bus CLI tools syntax
+    <input type='text' name='q' value='#{q}' autofocus size='100%'/>
+  </form>\n"
+
+  if q
+    command = DBusBabel.parse_argv(Shellwords.split(q))
+    page << "<hr />\n"
+
+    if command
+      c = DBusBabel::DBusSend.new(command)
+      page << "<p><code>#{escape_html(c)}</code></p>\n"
+
+      c = DBusBabel::Busctl.new(command)
+      page << "<p><code>#{escape_html(c)}</code></p>\n"
+
+      c = DBusBabel::GDBus.new(command)
+      page << "<p><code>#{escape_html(c)}</code></p>\n"
+    else
+      page << "<p>Unrecognized tool, use dbus-send, busctl, gdbus</p>"
+    end
+  end
+  page << footer
+
+  page
+end
