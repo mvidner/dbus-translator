@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
+require "dbus-babel"
+
+command = case ARGV.first
+          when "dbus-send"
+            DBusBabel::DBusSend.parse_argv(ARGV)
+          when "busctl"
+            DBusBabel::Busctl.parse_argv(ARGV)
+          when "gdbus"
+            DBusBabel::GDBus.parse_argv(ARGV)
+          else
+            warn "Unrecognized tool #{command.inspect}"
+            exit 1
+          end
+
+puts DBusBabel::DBusSend.new(command)
+puts DBusBabel::Busctl.new(command)
+puts DBusBabel::GDBus.new(command)
