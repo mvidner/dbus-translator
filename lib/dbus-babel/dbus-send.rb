@@ -43,6 +43,70 @@ module DBusBabel
       command
     end
 
+    # Parse one data argument
+    # @return [DBus::Data::Base]
+    def self.parse_data(s)
+      type, colon, value = s.partition ":"
+      raise ArgumentError unless colon == ":"
+
+      case type
+      when "variant"
+        inner_type, colon, value = value.partition ":"
+        raise ArgumentError unless colon == ":"
+
+        value = parse_type(inner_type, value)
+        DBus::Data::Variant.new(value, member_type: nil)
+      when "array"
+        inner_type, colon, value = value.partition ":"
+        raise ArgumentError unless colon == ":"
+
+        # OMG DBus::Data::Array API is so opaque after a while
+        # TODO what if the item contains a comma
+        values = value.split ","
+        values = values.map do |v|
+          parse_type(inner_type, v)
+        end
+
+        # FIXME: empty array
+        DBus::Array.new(values, type: DBus::Type::Array[values.first.type_code])
+      when "dict"
+        raise NotImplementedError
+      else
+        parse_type(type, value)
+      end
+    end
+
+    # parses simple types that dbus-send knows
+    # Note that "signature" is omitted
+    def self.parse_type(type, value)
+      case type
+      when "string"
+        DBus::Data::String.new(value)
+      when "objpath"
+        DBus::Data::ObjectPath.new(value)
+      when "double"
+        DBus::Data::Double.new(Float(value))
+      when "boolean"
+        DBus::Data::Boolean.new(value == "true")
+      when "byte"
+        DBus::Data::Byte.new(Integer(value))
+      when "int16"
+        DBus::Data::Int16.new(Integer(value))
+      when "uint16"
+        DBus::Data::UInt16.new(Integer(value))
+      when "int32"
+        DBus::Data::Int32.new(Integer(value))
+      when "uint32"
+        DBus::Data::UInt32.new(Integer(value))
+      when "int64"
+        DBus::Data::Int64.new(Integer(value))
+      when "uint64"
+        DBus::Data::UInt64.new(Integer(value))
+      else
+        raise ArgumentError, "Unknown data type #{type.inspect}"
+      end
+    end
+
     def to_s
       addr_s = case address
                when :system
