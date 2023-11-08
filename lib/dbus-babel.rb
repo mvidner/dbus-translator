@@ -2,6 +2,7 @@ require "shellwords"
 
 require_relative "dbus-babel/busctl"
 require_relative "dbus-babel/command"
+require_relative "dbus-babel/equal_by_instance_variables"
 require_relative "dbus-babel/dbus-send"
 require_relative "dbus-babel/gdbus"
 
@@ -30,5 +31,25 @@ module DBusBabel
 
     # @return [Array] of what
     attr_accessor :body
+
+    include EqualByInstanceVariables
+
+    def initialize(
+      type: nil,
+      path: nil,
+      interface: nil,
+      member: nil,
+      destination: nil,
+      signature: nil,
+      body: nil
+    )
+      @type = type
+      @path = path
+      @interface = interface
+      @member = member
+      @destination = destination
+      @signature = signature
+      @body = body
+    end
   end
 end
