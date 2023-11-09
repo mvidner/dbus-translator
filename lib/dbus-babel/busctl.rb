@@ -75,6 +75,14 @@ module DBusBabel
       command
     end
 
+    def self.data_to_a(value)
+      klass = value.class
+      raise ArgumentError unless klass < DBus::Data::Base
+
+      # FIXME: only correct for simple types
+      [value.class.type_code, value.value]
+    end
+
     def to_s
       addr_s = case address
                when :system
@@ -95,6 +103,10 @@ module DBusBabel
         message.interface,
         message.member
       ].compact
+
+      message.body.each do |arg|
+        argv += self.class.data_to_a(arg)
+      end
 
       argv.shelljoin
     end

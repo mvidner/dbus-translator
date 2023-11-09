@@ -62,6 +62,11 @@ module DBusBabel
       command
     end
 
+    def self.data_to_s(value)
+      # FIXME: only correct for simple types
+      value.value.inspect
+    end
+
     def to_s
       addr_s = case address
                when :system
@@ -81,6 +86,10 @@ module DBusBabel
         message.type == :method_call ? "--method" : "--signal",
         "#{message.interface}.#{message.member}"
       ].compact
+
+      argv += message.body.map do |arg|
+        self.class.data_to_s(arg)
+      end
 
       argv.shelljoin
     end
