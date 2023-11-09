@@ -1,11 +1,28 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    diff-lcs (1.5.0)
     mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
     rack (2.2.8)
     rack-protection (2.2.4)
       rack
+    rexml (3.2.6)
+    rspec (3.12.0)
+      rspec-core (~> 3.12.0)
+      rspec-expectations (~> 3.12.0)
+      rspec-mocks (~> 3.12.0)
+    rspec-core (3.12.2)
+      rspec-support (~> 3.12.0)
+    rspec-expectations (3.12.3)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.12.0)
+    rspec-mocks (3.12.6)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.12.0)
+    rspec-support (3.12.1)
+    ruby-dbus (0.23.1)
+      rexml
     ruby2_keywords (0.0.5)
     sinatra (2.2.4)
       mustermann (~> 2.0)
@@ -19,6 +36,8 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  rspec (~> 3.12.0)
+  ruby-dbus (~> 0.23.1)
   sinatra (~> 2.2.0)
   webrick (~> 1.8)
 

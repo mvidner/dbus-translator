@@ -10,7 +10,7 @@ module DBusBabel
     attr_accessor :quiet
 
     def initialize(command = nil, address: nil, message: nil, quiet: nil)
-      if command != nil
+      if !command.nil?
         @address = command.address
         @message = command.message
         @quiet = command.quiet

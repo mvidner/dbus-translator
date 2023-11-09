@@ -1,3 +1,4 @@
+require "dbus"
 require "shellwords"
 
 require_relative "dbus-babel/busctl"

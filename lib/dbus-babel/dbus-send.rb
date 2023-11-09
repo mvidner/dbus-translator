@@ -38,7 +38,9 @@ module DBusBabel
       interface_member = argv.shift
       message.interface, _dot, message.member = interface_member.rpartition "."
 
-      warn "Parameter passing not yet implemented" unless argv.empty?
+      message.body = argv.map do |param|
+        parse_data(param)
+      end
 
       command
     end
@@ -76,35 +78,48 @@ module DBusBabel
       end
     end
 
+    DATA_CLASSES = {
+      "string" => DBus::Data::String,
+      "objpath" => DBus::Data::ObjectPath,
+      "double" => DBus::Data::Double,
+      "boolean" => DBus::Data::Boolean,
+      "byte" => DBus::Data::Byte,
+      "int16" => DBus::Data::Int16,
+      "uint16" => DBus::Data::UInt16,
+      "int32" => DBus::Data::Int32,
+      "uint32" => DBus::Data::UInt32,
+      "int64" => DBus::Data::Int64,
+      "uint64" => DBus::Data::UInt64,
+      "variant" => DBus::Data::Variant,
+      "array" => DBus::Data::Array
+    }
+
+    TYPE_NAMES = DATA_CLASSES.invert
+
     # parses simple types that dbus-send knows
     # Note that "signature" is omitted
     def self.parse_type(type, value)
-      case type
-      when "string"
-        DBus::Data::String.new(value)
-      when "objpath"
-        DBus::Data::ObjectPath.new(value)
-      when "double"
-        DBus::Data::Double.new(Float(value))
-      when "boolean"
-        DBus::Data::Boolean.new(value == "true")
-      when "byte"
-        DBus::Data::Byte.new(Integer(value))
-      when "int16"
-        DBus::Data::Int16.new(Integer(value))
-      when "uint16"
-        DBus::Data::UInt16.new(Integer(value))
-      when "int32"
-        DBus::Data::Int32.new(Integer(value))
-      when "uint32"
-        DBus::Data::UInt32.new(Integer(value))
-      when "int64"
-        DBus::Data::Int64.new(Integer(value))
-      when "uint64"
-        DBus::Data::UInt64.new(Integer(value))
-      else
-        raise ArgumentError, "Unknown data type #{type.inspect}"
+      klass = DATA_CLASSES[type]
+      raise ArgumentError, "Unknown data type #{type.inspect}" if klass.nil?
+
+      if klass == DBus::Data::Double
+        value = Float(value)
+      elsif klass == DBus::Data::Boolean
+        value = value == "true"
+      elsif klass < DBus::Data::Int
+        value = Integer(value)
       end
+
+      klass.new(value)
+    end
+
+    def self.data_to_s(value)
+      klass = value.class
+      raise ArgumentError unless klass < DBus::Data::Base
+
+      type_name = TYPE_NAMES[klass]
+      # FIXME: only correct for simple types
+      "#{type_name}:#{value.value}"
     end
 
     def to_s
@@ -125,6 +140,10 @@ module DBusBabel
         message.path,
         "#{message.interface}.#{message.member}"
       ].compact
+
+      argv += message.body.map do |arg|
+        self.class.data_to_s(arg)
+      end
 
       argv.shelljoin
     end

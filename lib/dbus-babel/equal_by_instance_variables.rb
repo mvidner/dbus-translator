@@ -4,7 +4,6 @@ module DBusBabel
   # The strict comparison (`eql?`) is unchanged and will be `false`
   # for different objects.
   module EqualByInstanceVariables
-
     def ==(other)
       return false if other.class != self.class
 
