@@ -5,6 +5,13 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require "dbus-babel"
 
+execute = false
+case ARGV.first
+when "-x", "--execute"
+  execute = true
+  ARGV.shift
+end
+
 command = DBusBabel.parse_argv(ARGV)
 
 if command.nil?
@@ -12,6 +19,8 @@ if command.nil?
   exit 1
 end
 
-puts DBusBabel::DBusSend.new(command)
-puts DBusBabel::Busctl.new(command)
-puts DBusBabel::GDBus.new(command)
+[DBusBabel::DBusSend, DBusBabel::Busctl, DBusBabel::GDBus].each do |klass|
+  shell_command = klass.new(command).to_s
+  puts shell_command
+  system shell_command if execute
+end
