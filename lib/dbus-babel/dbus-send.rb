@@ -35,8 +35,8 @@ module DBusBabel
 
       # Parse positional arguments
       message.path = argv.shift
-      interface_method = argv.shift
-      message.interface, _dot, message.member = interface_method.rpartition "."
+      interface_member = argv.shift
+      message.interface, _dot, message.member = interface_member.rpartition "."
 
       warn "Parameter passing not yet implemented" unless argv.empty?
 

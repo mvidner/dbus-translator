@@ -1,9 +1,9 @@
 require_relative "spec_helper"
 
-describe DBusBabel::Busctl do
+describe DBusBabel::GDBus do
   describe ".parse_argv" do
     it "parses a simple call" do
-      argv = "busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer GetMachineId".split
+      argv = "gdbus call --session --dest org.freedesktop.DBus --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.Peer.GetMachineId".split
       expected = described_class.new(
         address: :session,
         message: DBusBabel::Message.new(
