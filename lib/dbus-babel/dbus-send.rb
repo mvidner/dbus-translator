@@ -9,6 +9,7 @@ module DBusBabel
       raise LogicError unless cmd_s == "dbus-send"
 
       command = new
+      command.quiet = true
       command.address = :session
 
       command.message = message = Message.new
@@ -70,9 +71,16 @@ module DBusBabel
         end
 
         # FIXME: empty array
-        DBus::Array.new(values, type: DBus::Type::Array[values.first.type_code])
+        type = DBus::Type::Array[values.first.class.type_code]
+        DBus::Data::Array.new(values, type: type)
       when "dict"
-        raise NotImplementedError
+        key_type, value_type, value = value.split ":"
+        values = value.split ","
+        values = values.each_slice(2).map do |k, v|
+          [parse_type(key_type, k), parse_type(value_type, v)]
+        end
+        type = DBus::Type::Hash[values.first[0].class.type_code, values.first[1].class.type_code]
+        DBus::Data::Array.new(Hash[values], type: type)
       else
         parse_type(type, value)
       end
@@ -136,7 +144,7 @@ module DBusBabel
         "dbus-send",
         addr_s,
         message.type == :method_call ? "--print-reply" : nil,
-        "--dest=#{message.destination}",
+        message.destination ? "--dest=#{message.destination}" : nil,
         message.path,
         "#{message.interface}.#{message.member}"
       ].compact

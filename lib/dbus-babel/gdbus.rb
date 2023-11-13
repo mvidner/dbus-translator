@@ -64,7 +64,8 @@ module DBusBabel
 
     def self.data_to_s(value)
       # FIXME: only correct for simple types
-      value.value.inspect
+      # TODO: your eyes. your eyes.
+      value.value.inspect.gsub("=>", ":")
     end
 
     def to_s
@@ -81,11 +82,12 @@ module DBusBabel
         "gdbus",
         message.type == :method_call ? "call" : "emit",
         addr_s,
-        "--dest", message.destination,
+        message.destination ? ["--dest", message.destination] : [],
         "--object-path", message.path,
         message.type == :method_call ? "--method" : "--signal",
-        "#{message.interface}.#{message.member}"
-      ].compact
+        "#{message.interface}.#{message.member}",
+        "--"
+      ].flatten
 
       argv += message.body.map do |arg|
         self.class.data_to_s(arg)

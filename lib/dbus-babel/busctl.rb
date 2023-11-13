@@ -97,6 +97,7 @@ module DBusBabel
         "busctl",
         quiet ? "--quiet" : nil,
         addr_s,
+        "--",
         message.type == :method_call ? "call" : "emit",
         message.type == :method_call ? message.destination : nil,
         message.path,
