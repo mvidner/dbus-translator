@@ -5,12 +5,25 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require "dbus-babel"
 
+tools = []
 execute = false
-case ARGV.first
-when "-x", "--execute"
-  execute = true
+while ARGV.first.to_s.start_with? "-"
+  case ARGV.first
+  when "-x", "--execute"
+    execute = true
+  when "-d"
+    tools << DBusBabel::DBusSend
+  when "-b"
+    tools << DBusBabel::Busctl
+  when "-g"
+    tools << DBusBabel::GDBus
+  else
+    warn "Unrecognized option #{ARGV.first.inspect}"
+  end
   ARGV.shift
 end
+
+tools = [DBusBabel::DBusSend, DBusBabel::Busctl, DBusBabel::GDBus] if tools.empty?
 
 command = DBusBabel.parse_argv(ARGV)
 
@@ -19,7 +32,7 @@ if command.nil?
   exit 1
 end
 
-[DBusBabel::DBusSend, DBusBabel::Busctl, DBusBabel::GDBus].each do |klass|
+tools.each do |klass|
   shell_command = klass.new(command).to_s
   puts shell_command
   system shell_command if execute
