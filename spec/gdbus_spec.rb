@@ -6,6 +6,7 @@ describe DBusBabel::GDBus do
       argv = "gdbus call --session --dest org.freedesktop.DBus --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.Peer.GetMachineId".split
       expected = described_class.new(
         address: :session,
+        peer: false,
         message: DBusBabel::Message.new(
           type: :method_call,
           destination: "org.freedesktop.DBus",

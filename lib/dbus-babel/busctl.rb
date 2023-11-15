@@ -17,6 +17,7 @@ module DBusBabel
 
       command = new
       command.address = :system
+      command.peer = false
       command.quiet = false
       command.message = message = Message.new
 
@@ -30,6 +31,8 @@ module DBusBabel
           command.address = :system
         when "--user"
           command.address = :session
+        when /--address=(.*)/
+          command.address = Regexp.last_match(1)
         else
           warn "Unrecognized option #{argv.first.inspect}"
         end
@@ -66,6 +69,17 @@ module DBusBabel
         # TODO: typed data
         message.signature = "ss"
         message.body = [p_interface, p_member]
+      when "introspect"
+        # command.introspect = true
+        message.type = :method_call
+        argv.shift
+
+        message.destination = argv.shift
+        message.path = argv.shift
+        message.interface = "org.freedesktop.DBus.Introspectable"
+        message.member = "Introspect"
+      when "monitor"
+        warn "Unsupported verb #{argv.first.inspect}"
       else
         warn "Unrecognized verb #{argv.first.inspect}"
       end

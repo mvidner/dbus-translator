@@ -14,6 +14,7 @@ module DBusBabel
 
       command = new
       command.quiet = false
+      command.peer = false
       command.message = message = Message.new
 
       case argv.first

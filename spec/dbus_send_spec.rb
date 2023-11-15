@@ -6,6 +6,7 @@ describe DBusBabel::DBusSend do
       argv = "dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer.GetMachineId".split
       expected = described_class.new(
         address: :session,
+        peer: false,
         message: DBusBabel::Message.new(
           type: :method_call,
           destination: "org.freedesktop.DBus",
@@ -24,6 +25,7 @@ describe DBusBabel::DBusSend do
       argv = "dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Debug.Stats.GetConnectionStats string::1.0".split
       expected = described_class.new(
         address: :session,
+        peer: false,
         message: DBusBabel::Message.new(
           type: :method_call,
           destination: "org.freedesktop.DBus",
@@ -60,6 +62,7 @@ CMD
 
       expected = described_class.new(
         address: :session,
+        peer: false,
         message: DBusBabel::Message.new(
           type: :signal,
           destination: "org.freedesktop.ExampleName",

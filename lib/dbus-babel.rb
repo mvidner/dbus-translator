@@ -42,7 +42,7 @@ module DBusBabel
       member: nil,
       destination: nil,
       signature: nil,
-      body: nil
+      body: []
     )
       @type = type
       @path = path

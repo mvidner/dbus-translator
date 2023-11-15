@@ -6,6 +6,7 @@ describe DBusBabel::Busctl do
       argv = "busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer GetMachineId".split
       expected = described_class.new(
         address: :session,
+        peer: false,
         message: DBusBabel::Message.new(
           type: :method_call,
           destination: "org.freedesktop.DBus",

@@ -11,6 +11,7 @@ module DBusBabel
       command = new
       command.quiet = true
       command.address = :session
+      command.peer = false
 
       command.message = message = Message.new
       message.type = :signal
@@ -28,6 +29,11 @@ module DBusBabel
           command.address = :system
         when "--session"
           command.address = :session
+        when /--bus=(.*)/
+          command.address = Regexp.last_match(1)
+        when /--address=(.*)/, /--peer=(.*)/
+          command.address = Regexp.last_match(1)
+          peer = true
         else
           warn "Unrecognized option #{argv.first.inspect}"
         end
@@ -137,7 +143,7 @@ module DBusBabel
                when :session
                  "--session"
                else
-                 "--address=#{address}"
+                peer ? "--peer=#{address}" : "--bus=#{address}"
                end
 
       argv = [
