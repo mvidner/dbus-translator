@@ -75,12 +75,20 @@ module DBusBabel
       command
     end
 
+    # @return [Array<String>] type value...
     def self.data_to_a(value)
       klass = value.class
-      raise ArgumentError unless klass < DBus::Data::Base
+      raise ArgumentError, value.inspect unless klass < DBus::Data::Base
 
-      # FIXME: only correct for simple types
-      [value.class.type_code, value.value]
+      case value
+      when DBus::Data::Basic
+        [value.class.type_code, value.value]
+      when DBus::Data::Variant
+        [value.class.type_code] + data_to_a(value.exact_value)
+      else
+        # FIXME
+        ["o", "/sorry_cannot_do_containers_yet"]
+      end
     end
 
     def to_s
@@ -105,9 +113,17 @@ module DBusBabel
         message.member
       ].compact
 
+      # if data_to_a gives ["s", "hello"], ["o", "/world"], ["u", "42"]
+      # busctl wants ["sou", "hello", "/world", "42"]
+      sig = ""
+      args = []
       message.body.each do |arg|
-        argv += self.class.data_to_a(arg)
+        arg_sig, *arg_a = self.class.data_to_a(arg)
+        sig += arg_sig
+        args += arg_a
       end
+      argv << sig unless sig.empty?
+      argv += args
 
       argv.shelljoin
     end

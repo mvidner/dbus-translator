@@ -3,6 +3,10 @@
 For D-Bus there are several command-line tools that differ in usability
 and availability.
 
+- `dbus-send`, the original tool from libdbus
+- `busctl` from systemd
+- `gdbus` from GLib
+
 `dbus-translate` can be put in front of such a call to translate between these tools.
 
 Example (spaces added to aid comparison):
