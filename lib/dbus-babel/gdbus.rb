@@ -51,7 +51,11 @@ module DBusBabel
         when "--address"
           argv.shift
           command.address = argv.shift
+        when "--"
+          argv.shift
+          break
         else
+          argv.shift
           warn "Unrecognized option #{argv.first.inspect}"
         end
       end

@@ -38,6 +38,9 @@ module DBusBabel
         when /--address=(.*)/, /--peer=(.*)/
           command.address = Regexp.last_match(1)
           peer = true
+        when "--"
+          argv.shift
+          break
         else
           warn "Unrecognized option #{argv.first.inspect}"
         end

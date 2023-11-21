@@ -33,6 +33,9 @@ module DBusBabel
           command.address = :session
         when /--address=(.*)/
           command.address = Regexp.last_match(1)
+        when "--"
+          argv.shift
+          break
         else
           warn "Unrecognized option #{argv.first.inspect}"
         end
