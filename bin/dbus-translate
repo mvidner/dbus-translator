@@ -7,10 +7,13 @@ require "dbus-babel"
 
 tools = []
 execute = false
+features_yaml = false
 while ARGV.first.to_s.start_with? "-"
   case ARGV.first
   when "-x", "--execute"
     execute = true
+  when "-Y", "--features-yaml"
+    features_yaml = true
   when "-d"
     tools << DBusBabel::DBusSend
   when "-b"
@@ -33,7 +36,11 @@ if command.nil?
 end
 
 tools.each do |klass|
-  shell_command = klass.new(command).to_s
-  puts shell_command
-  system shell_command if execute
+  tool_command = klass.new(command)
+  if features_yaml
+    puts tool_command.to_features_yaml
+  else
+    puts tool_command.to_s
+  end
+  system tool_command.to_s if execute
 end

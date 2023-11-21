@@ -1,0 +1,40 @@
+
+# BTW, the ">-" syntax means: fold newlines into spaces, strip trailing newline.
+# See https://yaml-multiline.info/
+
+# This particular quoting style is
+# - readable
+# - a valid YAML single-line string
+# - suitable for pasting to the shell
+
+- name: Method call
+  desc: call a Method
+  dbus-send: "\
+    dbus-send \
+    --print-reply \
+    --dest=org.freedesktop.DBus \
+    /org/freedesktop/DBus \
+    org.freedesktop.DBus.Peer.GetMachineId \
+
+    "
+  busctl: "\
+    busctl \
+    --user \
+    -- \
+    call \
+    org.freedesktop.DBus \
+    /org/freedesktop/DBus \
+    org.freedesktop.DBus.Peer \
+    GetMachineId \
+
+    "
+  gdbus: "\
+    gdbus \
+    call \
+    --session \
+    --dest org.freedesktop.DBus \
+    --object-path /org/freedesktop/DBus \
+    --method org.freedesktop.DBus.Peer.GetMachineId \
+    -- \
+
+    "

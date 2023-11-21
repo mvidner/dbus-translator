@@ -105,7 +105,7 @@ module DBusBabel
       end
     end
 
-    def to_s
+    def to_argv
       addr_s = case address
                when :system
                  "--system"
@@ -138,8 +138,7 @@ module DBusBabel
       end
       argv << sig unless sig.empty?
       argv += args
-
-      argv.shelljoin
+      argv
     end
   end
 end

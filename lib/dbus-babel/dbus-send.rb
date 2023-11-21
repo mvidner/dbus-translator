@@ -1,5 +1,9 @@
 module DBusBabel
   class DBusSend < Command
+    def self.program
+      "dbus-send"
+    end
+
     # @param argv [Array<String>] CLI args where the first one is "dbus-send"
     # @return [DBusSend]
     def self.parse_argv(argv)
@@ -136,7 +140,7 @@ module DBusBabel
       "#{type_name}:#{value.value}"
     end
 
-    def to_s
+    def to_argv
       addr_s = case address
                when :system
                  "--system"
@@ -158,8 +162,6 @@ module DBusBabel
       argv += message.body.map do |arg|
         self.class.data_to_s(arg)
       end
-
-      argv.shelljoin
     end
   end
 end

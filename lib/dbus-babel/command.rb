@@ -26,5 +26,20 @@ module DBusBabel
     end
 
     include EqualByInstanceVariables
+
+    # @!method to_argv
+
+    def to_s
+      to_argv.shelljoin
+    end
+
+    def to_features_yaml
+      yaml = "  #{self.class.program}: \"\\\n"
+      to_argv.each do |arg|
+        yaml += "    #{arg} \\\n"
+      end
+      yaml += "\n    \"\n"
+      yaml
+    end
   end
 end

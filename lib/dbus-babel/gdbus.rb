@@ -69,7 +69,7 @@ module DBusBabel
       value.value.inspect.gsub("=>", ":")
     end
 
-    def to_s
+    def to_argv
       addr_s = case address
                when :system
                  "--system"
@@ -93,8 +93,6 @@ module DBusBabel
       argv += message.body.map do |arg|
         self.class.data_to_s(arg)
       end
-
-      argv.shelljoin
     end
   end
 end
