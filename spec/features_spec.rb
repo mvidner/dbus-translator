@@ -6,6 +6,8 @@ describe "Feature Matrix" do
   tools = [DBusBabel::DBusSend, DBusBabel::Busctl, DBusBabel::GDBus]
 
   features_yaml.each do |feat|
+    next if feat["skip"]
+
     describe(feat.fetch("name")) do
       commands = tools.map do |tool_k|
         cmdline = feat[tool_k.program]

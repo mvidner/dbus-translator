@@ -36,7 +36,7 @@ module DBusBabel
     def to_features_yaml
       yaml = "  #{self.class.program}: \"\\\n"
       to_argv.each do |arg|
-        yaml += "    #{arg} \\\n"
+        yaml += "    #{arg.to_s.shellescape} \\\n"
       end
       yaml += "\n    \"\n"
       yaml

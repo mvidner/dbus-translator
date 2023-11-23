@@ -38,3 +38,75 @@
     -- \
 
     "
+
+# I don't know whether CLI signal emission makes any sense,
+# as the recipients should match also the sender's well-known name
+- name: Signal emission
+  desc: emit a signal
+  dbus-send: "\
+    dbus-send \
+    --session \
+    --type=signal \
+    /org/freedesktop/systemd1 \
+    org.freedesktop.systemd1.Manager.UnitFilesChanged \
+
+    "
+  busctl: "\
+    busctl \
+    --user \
+    -- \
+    emit \
+    /org/freedesktop/systemd1 \
+    org.freedesktop.systemd1.Manager \
+    UnitFilesChanged \
+
+    "
+  gdbus: "\
+    gdbus \
+    emit \
+    --session \
+    --object-path \
+    /org/freedesktop/systemd1 \
+    --signal \
+    org.freedesktop.systemd1.Manager.UnitFilesChanged \
+    -- \
+
+    "
+
+- name: Signal emission with arguments
+  desc: emit a signal
+  # busctl and gdbus argument parsing does not work yet
+  skip: true
+  dbus-send: "\
+    dbus-send \
+    --session \
+    --type=signal \
+    /org/freedesktop/systemd1 \
+    org.freedesktop.systemd1.Manager.Reloading \
+    boolean:false \
+
+    "
+  busctl: "\
+    busctl \
+    --user \
+    -- \
+    emit \
+    /org/freedesktop/systemd1 \
+    org.freedesktop.systemd1.Manager \
+    Reloading \
+    b \
+    false \
+
+    "
+  gdbus: "\
+    gdbus \
+    emit \
+    --session \
+    --object-path \
+    /org/freedesktop/systemd1 \
+    --signal \
+    org.freedesktop.systemd1.Manager.Reloading \
+    -- \
+    false \
+
+    "

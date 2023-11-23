@@ -29,6 +29,12 @@ module DBusBabel
         when "--print-reply", "--print-reply=literal"
           command.quiet = false
           message.type = :method_call
+        when "--type=method_call"
+          message.type = :method_call
+        when "--type=signal"
+          message.type = :signal
+          # no effect, easier to compare
+          command.quiet = false
         when "--system"
           command.address = :system
         when "--session"
@@ -156,7 +162,7 @@ module DBusBabel
       argv = [
         "dbus-send",
         addr_s,
-        message.type == :method_call ? "--print-reply" : nil,
+        (message.type == :method_call && !message.quiet) ? "--print-reply" : nil,
         message.destination ? "--dest=#{message.destination}" : nil,
         message.path,
         "#{message.interface}.#{message.member}"
